@@ -1,0 +1,28 @@
+@import 'vue3-perfect-scrollbar/dist/vue3-perfect-scrollbar.css';
+@import 'tippy.js/dist/tippy.css';
+@import '@bhplugin/vue3-datatable/dist/style.css';
+@import 'file-upload-with-preview/dist/file-upload-with-preview.min.css';
+@import 'tailwind.css';
+
+.el-pagination * {
+ background: transparent !important;
+}
+
+.el-pagination__total {
+    display: none !important;
+}
+
+.ant-select-selector, .ant-pagination-options {
+    display: none !important;
+}
+
+.el-loading-mask {
+    z-index: 100 !important;
+    background: rgb(59 130 246 / 0.5) !important;
+    border-radius: 8px !important;
+}
+
+.excerpt_editor .ql-editor {
+    max-height: 100px !important;
+    min-height: 100px !important;
+}
