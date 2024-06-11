@@ -170,7 +170,8 @@ export const useLessonStore = defineStore('lesson', () => {
 
     function getLessons() {
         const module_id = router.currentRoute.value.params.module_id;
-        const course_id = router.currentRoute.value.params.id;
+        // const course_id = router.currentRoute.value.params.id;
+        const course_id = router.currentRoute.value.params.course_id
         const token = localStorage.getItem('token');
         isLoading.addLoading('getLessons');
         axios
@@ -231,7 +232,9 @@ export const useLessonStore = defineStore('lesson', () => {
             .then((res) => {
                 isLoading.showMessage('Deleted successfully');
                 modal.delete = false;
-                getLessons();
+                // getLessons();
+                useCourses.modal.delete = false;
+                useCourses.getCourseData();
                 isLoading.removeLoading('deleteLesson');
             })
             .catch((err) => {

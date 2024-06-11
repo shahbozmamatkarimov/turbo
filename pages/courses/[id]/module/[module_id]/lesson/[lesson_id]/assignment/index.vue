@@ -5,9 +5,6 @@
                 <icon-arrow-left class="text-darj rotate-180" />
                 Topshiriq
             </h5>
-            <!-- <div v-if="isLoading.store.permissions?.includes('Create Assignment')" class="flex items-center justify-center">
-                <button type="button" class="btn btn-info" @click="useAssignments.modal.create = true">+ Qo'shish</button>
-            </div> -->
             <div class="flex items-center justify-center">
                 <button type="button" class="btn btn-info" @click="useAssignments.modal.create = true">+ Qo'shish</button>
             </div>

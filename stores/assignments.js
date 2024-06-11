@@ -30,9 +30,11 @@ export const useAssignmentsStore = defineStore('assignments', () => {
     });
 
     function clearData() {
+        const id = create.lesson_id;
         for (let i in create) {
             create[i] = '';
         }
+        create.lesson_id = id;
     }
 
     function createAssignment() {
@@ -67,7 +69,7 @@ export const useAssignmentsStore = defineStore('assignments', () => {
                 modal.create = false;
                 isLoading.showMessage('Created successfully', 'success');
                 isLoading.removeLoading('createAssignment');
-                // getAssignments();
+                clearData();
                 useCourses.getCourseData();
             })
             .catch((err) => {
@@ -102,10 +104,10 @@ export const useAssignmentsStore = defineStore('assignments', () => {
             })
             .then((res) => {
                 modal.create = false;
-                getAssignments();
-                useLesson.getLessonById();
                 isLoading.showMessage('Updated successfully', 'success');
                 isLoading.removeLoading('updateAssignment');
+                clearData()
+                useCourses.getCourseData();
             })
             .catch((err) => {
                 isLoading.checkAuth(err);
@@ -157,8 +159,10 @@ export const useAssignmentsStore = defineStore('assignments', () => {
             .then((res) => {
                 isLoading.showMessage('Deleted successfully');
                 modal.delete = false;
-                getAssignments();
-                useLesson.getLessonById();
+                useCourses.modal.delete = false;
+                useCourses.getCourseData();
+                // getAssignments();
+                // useLesson.getLessonById();
                 isLoading.removeLoading('deleteAssignment');
             })
             .catch((err) => {

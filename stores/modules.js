@@ -34,6 +34,7 @@ export const useModulesStore = defineStore('modules', () => {
     }
 
     function createModule() {
+        create.course_id = router.currentRoute.value.params.course_id
         if (isLoading.isLoadingType('createModule')) {
             return;
         }
@@ -76,8 +77,8 @@ export const useModulesStore = defineStore('modules', () => {
         if (isLoading.isLoadingType('updateModule')) {
             return;
         }
-        const course_id = router.currentRoute.value.params.id;
-        create.course_id = course_id;
+        // const course_id = router.currentRoute.value.params.id;
+        // create.course_id = course_id;
         const token = localStorage.getItem('token');
         const formData = new URLSearchParams();
         for (let i in create) {
@@ -173,9 +174,11 @@ export const useModulesStore = defineStore('modules', () => {
                 },
             })
             .then((res) => {
+                console.log(res);
                 isLoading.showMessage('Deleted successfully');
                 modal.delete = false;
-                getModules();
+                useCourses.modal.delete = false;
+                useCourses.getCourseData();
                 isLoading.removeLoading('deleteModule');
             })
             .catch((err) => {

@@ -1,12 +1,13 @@
 import { defineStore } from 'pinia';
-import { useLoadingStore, useLessonStore, useCoursesStore } from '@/stores';
+import { useLoadingStore, useLessonStore, useCoursesStore, useAssignmentsStore } from '@/stores';
 // import { useNotification } from '@/composables';
 import axios from 'axios';
 
 export const useAttachmentsStore = defineStore('attachments', () => {
     const isLoading = useLoadingStore();
     const useLesson = useLessonStore();
-    const useCourses  = useCoursesStore();
+    const useCourses = useCoursesStore();
+    const useAssignments = useAssignmentsStore();
     const runtime = useRuntimeConfig();
     const router = useRouter();
     const baseUrl = runtime.public.baseURL;
@@ -52,6 +53,8 @@ export const useAttachmentsStore = defineStore('attachments', () => {
         }
         const token = localStorage.getItem('token');
         const formData = new FormData();
+        // create.lesson_id = useAssignments.create.lesson_id;
+        console.log(create.lesson_id, 'dklfkdlfk');
         for (let i in create) {
             // if (!create.file) {
             //     return isLoading.showMessage(i + ' is empty', 'warning');
@@ -71,7 +74,8 @@ export const useAttachmentsStore = defineStore('attachments', () => {
                 modal.create = false;
                 isLoading.showMessage('Created successfully', 'success');
                 isLoading.removeLoading('createAttachment');
-                getAttachments();
+                // getAttachments();
+                useCourses.getCourseData();
             })
             .catch((err) => {
                 isLoading.checkAuth(err);
@@ -105,7 +109,8 @@ export const useAttachmentsStore = defineStore('attachments', () => {
             })
             .then((res) => {
                 modal.create = false;
-                getAttachments();
+                // getAttachments();
+                useCourses.getCourseData();
                 isLoading.showMessage('Updated successfully', 'success');
                 isLoading.removeLoading('updateAttachment');
             })
@@ -159,8 +164,10 @@ export const useAttachmentsStore = defineStore('attachments', () => {
             .then((res) => {
                 isLoading.showMessage('Deleted successfully');
                 modal.delete = false;
-                getAttachments();
-                useLesson.getLessonById();
+                // getAttachments();
+                // useLesson.getLessonById();
+                useCourses.modal.delete = false;
+                useCourses.getCourseData();
                 isLoading.removeLoading('deleteAttachment');
             })
             .catch((err) => {

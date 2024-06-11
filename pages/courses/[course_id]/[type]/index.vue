@@ -1,128 +1,17 @@
 <template>
-    <div v-loading="isLoading.isLoadingType('getCourses')" class="panel">
-        <!-- <div class="panel"> -->
-        <div class="mb-5 flex items-center justify-between">
-            <h5 class="text-lg font-semibold dark:text-white-light">Kurslar</h5>
-            <div v-if="isLoading.store.permissions?.includes('Create Course')" class="flex items-center justify-center">
-                <button type="button" class="btn btn-info" @click="$router.push('courses/course/create')">+ Qo'shish</button>
-            </div>
-        </div>
-        <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
-            <template v-for="data in useCourses.store.courses" :key="data.id">
-                <div class="flex cursor-pointer items-center justify-center">
-                    <div
-                        class="relative w-full max-w-[22rem] rounded border border-[#e0e6ed] bg-white shadow-[4px_6px_10px_-3px_#bfc9d4] dark:border-[#1b2e4b] dark:bg-[#191e3a] dark:shadow-none">
-                        <div class="px-6 py-7 pb-[60px]">
-                            <div @click="$router.push(`/courses/${data.id}/module`)">
-                                <div class="-mx-6 -mt-7 mb-2 h-[200px] overflow-hidden rounded-tl rounded-tr">
-                                    <img v-if="data.photo" :src="data.photo" alt=""
-                                        class="min-h-[200px] w-full object-cover" />
-                                    <img v-else src="@/assets/image/placeholder.svg" alt=""
-                                        class="min-h-[200px] w-full object-cover" />
-                                </div>
-                                <p class="mb-1 text-xs font-bold text-primary">{{ formateCreatedAt(data.created_at) }}
-                                </p>
-                                <h5
-                                    class="mb-2 h-4 truncate text-[15px] font-bold text-[#3b3f5c] dark:text-white-light">
-                                    {{ data.name }}</h5>
-                                <p class="line-clamp-3 h-[64px] text-white-dark" v-html="data.description"></p>
-                                <p class="mt-5">Qisqa ma'lumot</p>
-                                <p class="line-clamp-2 h-10 text-white-dark" v-html="data.excerpt"></p>
-                                <ul class="mb-2 mt-3 dark:text-gray-200">
-                                    <li class="flex justify-between">
-                                        Davomiyligi:
-                                        <p>{{ data.duration }}</p>
-                                    </li>
-                                    <li class="flex justify-between">
-                                        Oy:
-                                        <p>{{ data.month_number }}</p>
-                                    </li>
-                                </ul>
-                                <div
-                                    class="relative flex justify-between pt-4 before:absolute before:inset-x-0 before:top-0 before:mx-auto before:h-[1px] before:w-[250px] before:bg-[#e0e6ed] dark:before:bg-[#1b2e4b]">
-                                    <div class="flex items-center font-semibold">
-                                        <div
-                                            class="inline-block h-9 w-9 shrink-0 overflow-hidden rounded-full ltr:mr-2 rtl:ml-2.5">
-                                            <span
-                                                class="flex h-full w-full items-center justify-center bg-[#515365] text-[#e0e6ed]"></span>
-                                        </div>
-                                        <div class="text-[#515365] dark:text-white-dark"></div>
-                                    </div>
-                                    <div class="flex font-semibold">
-                                        <div class="flex items-center text-primary">
-                                            <div class="flex items-center text-primary ltr:mr-3 rtl:ml-3">
-                                                <icon-dollar-sign class="h-4 w-4 ltr:mr-1 rtl:ml-1" />
-                                                <p class="mr-2 line-through" v-if="data.discount">{{ data.price +
-        data.discount }}</p>
-                                                {{ data.price }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <li class="mt-3 flex justify-between">
-                                Link:
-                                <p class="flex gap-2">
-                                    <a class="max-w-[120px] truncate" target="_blank" :href="data.trailer">{{
-        data.trailer ? data.trailer : '_____' }}</a>
-                                    <icon-logout />
-                                </p>
-                            </li>
-                        </div>
-                        <ul class="absolute bottom-3 right-4 flex items-center justify-center gap-3 py-2">
-                            <li v-if="isLoading.store.permissions?.includes('Edit Course')"
-                                @click="$router.push(`courses/${data.id}/edit`)">
-                                <client-only>
-                                    <a href="javascript:;" v-tippy:edit>
-                                        <icon-eye class="text-primary" />
-                                    </a>
-                                </client-only>
-                            </li>
-                            <li v-if="isLoading.store.permissions?.includes('Edit Course')"
-                            @click="$router.push(`courses/${data.id}/edit`)">
-                                <client-only>
-                                    <a href="javascript:;" v-tippy:edit>
-                                        <icon-pencil class="text-success" />
-                                    </a>
-                                </client-only>
-                            </li>
-                            <li v-if="isLoading.store.permissions?.includes('Delete Course')"
-                                @click="handleDelete(data.id, 'course')">
-                                <client-only>
-                                    <a href="javascript:;" v-tippy:delete>
-                                        <icon-trash-lines class="text-danger" />
-                                    </a>
-                                </client-only>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </template>
-        </div>
-        <Pagination class="mt-4" />
-    </div>
-
     <!-- Modal -->
     <client-only>
-        <TransitionRoot appear :show="useCourses.modal.create" as="template">
-            <Dialog as="div" @close="useCourses.modal.create = false" class="relative z-[51]">
-                <TransitionChildxl as="template" enter="duration-300 ease-out" enter-from="opacity-0"
-                    enter-to="opacity-100" leave="duration-200 ease-in" leave-from="opacity-100" leave-to="opacity-0">
-                    <DialogOverlay class="fixed inset-0 bg-[black]/60" />
-                </TransitionChildxl>
-
-                <div class="fixed inset-0 overflow-y-auto">
-                    <div class="flex min-h-full items-center justify-center px-4 py-8">
-                        <TransitionChild as="template" enter="duration-300 ease-out" enter-from="opacity-0 scale-95"
-                            enter-to="opacity-100 scale-100" leave="duration-200 ease-in"
-                            leave-from="opacity-100 scale-100" leave-to="opacity-0 scale-95">
-                            <DialogPanel
-                                class="panel w-full overflow-hidden rounded-lg border-0 p-0 text-black dark:text-white-dark">
-                                <div
+        <section>
+            <div @close="$router.currentRoute.value.params.type == 'create'">
+                <div class="panel w-full">
+                    <h5 @click="$router.back()" class="flex items-center cursor-pointer gap-1 text-lg font-semibold dark:text-white-light">
+                <icon-arrow-left class="text-darj rotate-180" />
+                <div
                                     class="bg-[#fbfbfb] py-3 text-lg font-bold dark:bg-[#121c2c] ltr:pl-5 ltr:pr-[50px] rtl:pl-[50px] rtl:pr-5">
-                                    Kurs <span v-if="useLesson.modal.edit">tahrirlash</span>
+                                    Kurs <span v-if="$router.currentRoute.value.params.type == 'edit'">tahrirlash</span>
                                     <span v-else>qo'shish</span>
                                 </div>
+            </h5>
                                 <button type="button"
                                     class="absolute top-4 text-gray-400 outline-none hover:text-gray-800 dark:hover:text-gray-600 ltr:right-4 rtl:left-4"
                                     @click="useCourses.modal.create = false">
@@ -274,7 +163,7 @@
                                             </div>
                                         </form>
                                     </div>
-                                    <div v-if="useCourses.modal.edit" class="w-full pr-5">
+                                    <div v-if="$router.currentRoute.value.params.type == 'edit'" class="w-full pr-5">
                                         <div class="flex items-center justify-between w-full pb-2">
                                             <p>Modullar</p>
                                             <p @click="handleAdd('module')">
@@ -311,7 +200,7 @@
                                                         <p>Darslar</p>
                                                         <p @click="handleAdd('lesson')">
                                                             <icon-plus
-                                                                class="bg-primary text-white rounded-md cursor-pointer" />
+                                                                class="bg-primary text-white w-6 h-6 p-0.5 rounded-md cursor-pointer" />
                                                         </p>
                                                     </div>
                                                     <el-collapse v-model="useAttachment.create.lesson_id"
@@ -326,7 +215,7 @@
                                                                     <ul
                                                                         class="ml-4 flex items-center justify-center gap-3">
                                                                         <li v-if="isLoading.store.permissions?.includes('Edit Module')"
-                                                                            @click="handleTahrirlash(lesson, 'dars')">
+                                                                            @click="handleTahrirlash(lesson, 'lesson')">
                                                                             <client-only>
                                                                                 <a href="javascript:;" v-tippy:edit>
                                                                                     <icon-pencil class="text-success" />
@@ -374,22 +263,15 @@
                                                                             </li>
                                                                             </li>
                                                                         </ul>
-                                                                        <div class="mb-4 flex items-center gap-3"
-                                                                            v-for="(i, index) in useLesson.store.attachment_step">
+                                                                        <div v-if="useAttachment.modal.create" class="mb-4 gap-3">
                                                                             <input
                                                                                 @change="(e) => handleAttachment(e, index)"
                                                                                 type="file" class="form-input" />
-                                                                            <icon-minus-circle
-                                                                                @click="() => removeFile(index)"
-                                                                                class="cursor-pointer" />
-                                                                        </div>
-                                                                        <button
-                                                                            @click="useLesson.store.attachment_step += 1"
-                                                                            type="button"
-                                                                            class="w-full rounded-md border border-primary py-1">
-                                                                            Fayl qo'shish
-                                                                        </button>
-                                                                        <div class="mt-8 flex items-center justify-end">
+                                                                                <div class="mt-8 flex items-center justify-end">
+                                                                            <button type="button" @click="useAttachment.modal.create = false"
+                                                                                class="btn btn-outline-danger">
+                                                                                Bekor qilish
+                                                                            </button>
                                                                             <button
                                                                                 @click="useAttachment.createAttachment"
                                                                                 type="submit"
@@ -399,6 +281,13 @@
                                                                                 <p v-else>Qo'shish</p>
                                                                             </button>
                                                                         </div>
+                                                                        </div>
+                                                                        <button v-if="!useAttachment.modal.create"
+                                                                            @click="useAttachment.modal.create = true"
+                                                                            type="button"
+                                                                            class="w-full rounded-md border border-primary py-1">
+                                                                            Fayl qo'shish
+                                                                        </button>
                                                                     </el-collapse-item>
                                                                     <el-collapse-item title="Topshiriqlar" name="2">
                                                                         <div class="overflow-hidden overflow-x-auto">
@@ -417,18 +306,14 @@
                                                                                         v-for="data in lesson.assignments"
                                                                                         :key="data.id">
                                                                                         <tr>
-                                                                                            <td @click="nextAttachment(data.id)"
-                                                                                                class="cursor-pointer whitespace-nowrap">
+                                                                                            <td class="cursor-pointer whitespace-nowrap">
                                                                                                 #{{ data.id }}</td>
-                                                                                            <td @click="nextAttachment(data.id)"
-                                                                                                class="cursor-pointer">
+                                                                                            <td class="cursor-pointer">
                                                                                                 {{ data.name }}</td>
-                                                                                            <td @click="nextAttachment(data.id)"
-                                                                                                class="cursor-pointer"
+                                                                                            <td class="cursor-pointer"
                                                                                                 v-html="data.description">
                                                                                             </td>
-                                                                                            <td @click="nextAttachment(data.id)"
-                                                                                                class="cursor-pointer">
+                                                                                            <td class="cursor-pointer">
                                                                                                 {{ data.max_score }}
                                                                                             </td>
                                                                                             <td class="text-center">
@@ -461,8 +346,7 @@
                                                                                 </tbody>
                                                                             </table>
                                                                         </div>
-                                                                        <div class="p-5"
-                                                                            v-for="(i, index) in useLesson.create.assignments">
+                                                                        <div v-if="useAssignment.modal.create" class="p-5">
                                                                             <div class="custom-file-container"
                                                                                 data-upload-id="myFirstImage">
                                                                                 <h1>Topshiriq nomi</h1>
@@ -486,27 +370,22 @@
                                                                                     </client-only>
                                                                                 </div>
                                                                             </div>
-                                                                            <button
-                                                                                @click="() => removeAssignment(index)"
-                                                                                type="button"
-                                                                                class="w-full rounded-md border border-primary py-1">
-                                                                                Topshiriqni o'chirish
-                                                                            </button>
                                                                             <div
                                                                                 class="mt-8 flex items-center justify-end">
+                                                                                <button type="button" @click="useAssignment.modal.create = false"
+                                                                                    class="btn btn-outline-danger">
+                                                                                    Bekor qilish
+                                                                                </button>
                                                                                 <button
                                                                                     @click="useAssignment.createAssignment"
                                                                                     type="submit"
                                                                                     class="btn btn-primary ltr:ml-4 rtl:mr-4">
-                                                                                    <p v-if="useModules.modal.edit">
-                                                                                        Saqlash
-                                                                                    </p>
-                                                                                    <p v-else>Qo'shish</p>
+                                                                                    <p>Qo'shish</p>
                                                                                 </button>
                                                                             </div>
                                                                             <hr />
                                                                         </div>
-                                                                        <button @click="addAssignment" type="button"
+                                                                        <button v-if="!useAssignment.modal.create" @click="useAssignment.modal.create = true" type="button"
                                                                             class="w-full rounded-md border border-primary py-1">
                                                                             Topshiriq qo'shish
                                                                         </button>
@@ -518,76 +397,11 @@
                                                 </el-collapse-item>
                                             </el-collapse>
                                         </ul>
-                                        <form @submit.prevent="useModules.createModule" class="ml-4">
-                                            <div class="custom-file-container" data-upload-id="myFirstImage">
-                                                <input v-model="useModules.create.name" type="text" placeholder="Nomi"
-                                                    class="form-input mb-4" required />
-                                            </div>
-
-                                            <div class="mt-8 flex items-center justify-end">
-                                                <button type="button" @click="useModules.modal.create = false"
-                                                    class="btn btn-outline-danger">
-                                                    Bekor qilish
-                                                </button>
-                                                <button type="submit" class="btn btn-primary ltr:ml-4 rtl:mr-4">
-                                                    <p v-if="useModules.modal.edit">Saqlash</p>
-                                                    <p v-else>Qo'shish</p>
-                                                </button>
-                                            </div>
-                                        </form>
-                                        <div
-                                            class="bg-[#fbfbfb] py-3 text-lg font-bold dark:bg-[#121c2c] ltr:pl-5 ltr:pr-[50px] rtl:pl-[50px] rtl:pr-5">
-                                            Modul <span v-if="useModules.modal.edit">tahrirlash</span>
-                                            <span v-else>qo'shish</span>
-                                        </div>
-                                        <div class="table-responsive">
-                                            <table class="w-full">
-                                                <tbody class="!w-full"
-                                                    v-loading="isLoading.isLoadingType('updatePosition')">
-                                                    <draggable @change="useModules.updatePosition"
-                                                        :list="useModules.store.modules" group="grid" :animation="200"
-                                                        class="grid !min-w-full grid-cols-1">
-                                                        <!--<template class="!w-full" :key="data.id">
-     -->
-                                                        <tr v-for="(data, index) in useCourses.store.course_data"
-                                                            class="!min-w-full cursor-pointer">
-                                                            <td class="whitespace-nowrap">{{ index + 1 }}</td>
-                                                            <td>{{ data.name }}</td>
-                                                            <td class="text-center">
-                                                                <ul class="flex items-center justify-center gap-3">
-                                                                    <li v-if="isLoading.store.permissions?.includes('Edit Module')"
-                                                                        @click="handleTahrirlash(data)">
-                                                                        <client-only>
-                                                                            <a href="javascript:;" v-tippy:edit>
-                                                                                <icon-pencil class="text-success" />
-                                                                            </a>
-                                                                        </client-only>
-                                                                    </li>
-                                                                    <li v-if="isLoading.store.permissions?.includes('Delete Module')"
-                                                                        @click="handleDelete(data.id)">
-                                                                        <client-only>
-                                                                            <a href="javascript:;" v-tippy:delete>
-                                                                                <icon-trash-lines class="text-danger" />
-                                                                            </a>
-                                                                        </client-only>
-                                                                    </li>
-                                                                </ul>
-                                                            </td>
-                                                        </tr>
-                                                        <!--
-</template>-->
-                                                    </draggable>
-                                                </tbody>
-                                            </table>
-                                        </div>
                                     </div>
-                                </div>
-                            </DialogPanel>
-                        </TransitionChild>
-                    </div>
+                            </div>
                 </div>
-            </Dialog>
-        </TransitionRoot>
+            </div>
+        </section>
     </client-only>
 
     <TransitionRoot appear :show="useCourses.modal.delete" as="template">
@@ -698,7 +512,7 @@
                             </button>
                             <div
                                 class="bg-[#fbfbfb] py-3 text-lg font-bold dark:bg-[#121c2c] ltr:pl-5 ltr:pr-[50px] rtl:pl-[50px] rtl:pr-5">
-                                Dars <span v-if="useLesson.modal.edit">tahrirlash</span>
+                                Dars <span v-if="$router.currentRoute.value.params.type == 'edit'">tahrirlash</span>
                                 <span v-else>qo'shish</span>
                             </div>
                             <form @submit.prevent="useLesson.createLesson" class="p-5">
@@ -851,12 +665,66 @@
                                     <button type="button" @click="useLesson.modal.create = false"
                                         class="btn btn-outline-danger">Bekor qilish</button>
                                     <button type="submit" class="btn btn-primary ltr:ml-4 rtl:mr-4">
-                                        <p v-if="useLesson.modal.edit">Saqlash</p>
+                                        <p v-if="$router.currentRoute.value.params.type == 'edit'">Saqlash</p>
                                         <p v-else>Qo'shish</p>
                                     </button>
                                 </div>
                             </form>
                         </DialogPanel>
+                        <DialogPanel v-else-if="store.delete_type == 'topshiriq'" class="panel w-full max-w-lg overflow-hidden rounded-lg border-0 p-0 text-black dark:text-white-dark">
+                                <button
+                                    type="button"
+                                    class="absolute top-4 text-gray-400 outline-none hover:text-gray-800 dark:hover:text-gray-600 ltr:right-4 rtl:left-4"
+                                    @click="useAssignment.modal.create = false"
+                                >
+                                    <icon-x />
+                                </button>
+                                <div class="bg-[#fbfbfb] py-3 text-lg font-bold dark:bg-[#121c2c] ltr:pl-5 ltr:pr-[50px] rtl:pl-[50px] rtl:pr-5">
+                                    Topshiriqni <span v-if="useAssignment.modal.edit">tahrirlash</span>
+                                    <span v-else>qo'shish</span>
+                                </div>
+                                <form @submit.prevent="useAssignment.createAssignment" class="p-5">
+                                    <div class="custom-file-container" data-upload-id="myFirstImage">
+                                        <h1>Topshiriq nomi</h1>
+                                        <input
+                                            @input="handleAssignmentName"
+                                            v-model="useAssignment.create.name"
+                                            type="text"
+                                            placeholder="Nomi"
+                                            class="form-input mb-4"
+                                            required
+                                        />
+                                        <h1>Max ball</h1>
+                                        <input
+                                            @input="handleAssignmentName"
+                                            v-model="useAssignment.create.max_score"
+                                            type="number"
+                                            placeholder="Nomi"
+                                            class="form-input mb-4"
+                                            required
+                                        />
+                                        <div class="mb-5">
+                                            <h1>Tavsifi</h1>
+                                            <client-only>
+                                                <quillEditor
+                                                    ref="editor"
+                                                    v-model:value="useAssignment.create.description"
+                                                    :options="options1"
+                                                    style="min-height: 100px"
+                                                ></quillEditor>
+                                            </client-only>
+                                        </div>
+                                    </div>
+
+                                    <div class="mt-8 flex items-center justify-end">
+                                        <button type="button" @click="useAssignment.modal.create = false" class="btn btn-outline-danger">Bekor qilish</button>
+                                        <button type="submit" class="btn btn-primary ltr:ml-4 rtl:mr-4">
+                                            <p v-if="useAssignment.modal.edit">Saqlash</p>
+                                            <p v-else>Qo'shish</p>
+                                        </button>
+                                    </div>
+                                </form>
+                            </DialogPanel>
                         <DialogPanel v-else
                             class="panel w-full max-w-lg overflow-hidden rounded-lg border-0 p-0 text-black dark:text-white-dark">
                             <button type="button"
@@ -907,6 +775,7 @@
     </TransitionRoot>
 </template>
 
+
 <script setup>
 import { TransitionRoot, TransitionChild, Dialog, DialogPanel, DialogOverlay, TabGroup, TabList, Tab, TabPanels, TabPanel } from '@headlessui/vue';
 import Multiselect from '@suadelabs/vue3-multiselect';
@@ -922,12 +791,6 @@ const useAttachment = useAttachmentsStore();
 const useAssignment = useAssignmentsStore()
 const useModules = useModulesStore();
 isLoading.store.page_name = 'courses';
-isLoading.store.pagination.current_page = router.currentRoute.value.query.page | 1;
-isLoading.changeQuery('page', router.currentRoute.value.query.page | 1);
-
-// if(!isLoading.store.permissions?.includes('View Course')) {
-//     router.push("/");
-// }
 
 const options1 = ref({
     modules: {
@@ -996,13 +859,18 @@ function handleTahrirlash(data, type) {
             useModules.modal.create = true;
             useModules.modal.edit = true;
         }
-        if (type == 'lesson') {
-            useModules.store.lesson_id = data.id;
-            // useModules.create.module_id = useModules.create.course_id;
+        else if (type == 'lesson') {
+            useLesson.store.lesson_id = data.id;
             for (let i in useLesson.create) {
                 useLesson.create[i] = data[i];
             }
             useLesson.modal.edit = true;
+        } else if (type == 'topshiriq') {
+            useAssignment.store.assignment_id = data.id;
+            for (let i in useAssignment.create) {
+                useAssignment.create[i] = data[i];
+            }
+            useAssignment.modal.edit = true;
         }
         useLesson.modal.create = true;
     }
@@ -1049,14 +917,7 @@ function handleAttachment(e, index) {
         useLesson.create.attachments = [];
     }
     const file = e.target.files[0];
-    // const formData = new FormData();
-    // formData.append('file', e.target.files[0]);
-    // useLesson.create.attachments.push(file);
     useAttachment.create.file = file;
-
-    for (let [key, value] of formData.entries()) {
-        console.log(`${key}: ${value}`);
-    }
 }
 
 function addAssignment() {
@@ -1073,7 +934,7 @@ function addAssignment() {
 }
 
 onBeforeMount(() => {
-    useCourses.getCourses();
+    useCourses.getCourseData();
 });
 
 watch(
@@ -1101,5 +962,13 @@ watch(() => useAttachment.create.lesson_id, () => {
     console.log(useAttachment.create.lesson_id)
     console.log(useAssignment.create.lesson_id, 'dksldjskldk')
     useAssignment.create.lesson_id = useAttachment.create.lesson_id;
+})
+
+watch(() => useLesson.modal.create, () => {
+    if (!useLesson.modal.create) {
+        useLesson.modal.edit = false;
+        useModules.modal.edit = false;
+        useAssignment.modal.edit =false;
+    }
 })
 </script>

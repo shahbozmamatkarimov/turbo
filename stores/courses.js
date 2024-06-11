@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia';
-import { useLoadingStore } from '@/stores';
+import { useLoadingStore, useLessonStore } from '@/stores';
 // import { useNotification } from '@/composables';
 import axios from 'axios';
 
 export const useCoursesStore = defineStore('courses', () => {
     const isLoading = useLoadingStore();
+    const useLesson = useLessonStore();
     const runtime = useRuntimeConfig();
     const router = useRouter();
     const baseUrl = runtime.public.baseURL;
@@ -154,8 +155,10 @@ export const useCoursesStore = defineStore('courses', () => {
     }
 
     function getCourseData() {
+        useLesson.modal.create = false;
         const token = localStorage.getItem('token');
         isLoading.addLoading('getCourseData');
+        store.course_id = router.currentRoute.value.params.course_id
         axios
             .get(baseUrl + `course/${store.course_id}/get-all`, {
                 headers: {
