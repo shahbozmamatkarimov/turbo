@@ -92,7 +92,6 @@ export const useCheckStore = defineStore('check', () => {
                 }
             )
             .then((res) => {
-                console.log(res);
                 modal.is_new = false;
                 getCheck();
                 isLoading.showMessage('Updated successfully', 'success');
@@ -114,7 +113,7 @@ export const useCheckStore = defineStore('check', () => {
         axios
             .get(
                 baseUrl +
-                    `group/${group_id}/assignment/${assignment_id}/answers?page=${isLoading.store.pagination.current_page}&search=${isLoading.store.search}`,
+                    `group/${group_id}/assignment/${assignment_id}/answers?page=${isLoading.store.pagination.current_page}`,
                 {
                     headers: {
                         Authorization: 'Bearer ' + token,
@@ -123,8 +122,7 @@ export const useCheckStore = defineStore('check', () => {
                 }
             )
             .then((res) => {
-                console.log(res);
-                isLoading.store.isLogged = true;
+                console.log(res, 'dksldksldk');
                 store.check = res.data;
                 for (let i in isLoading.store.pagination) {
                     isLoading.store.pagination[i] = res.data.meta[i];

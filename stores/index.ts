@@ -18,6 +18,7 @@ import { useGroupStore } from './group';
 import { useAssignmentsStore } from './assignments';
 import { useAttachmentsStore } from './attachment';
 import { useCheckStore } from './check';
+import { useMemberStore } from './members';
 
 export const useAppStore = defineStore('app', {
     state: () => ({
@@ -159,4 +160,5 @@ export {
     useAssignmentsStore,
     useCheckStore,
     useAttachmentsStore,
+    useMemberStore,
 };

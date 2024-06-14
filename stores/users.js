@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia';
-import { useLoadingStore } from '@/stores';
+import { useLoadingStore, useMemberStore } from '@/stores';
 import axios from 'axios';
 
 export const useUserStore = defineStore('user', () => {
     const isLoading = useLoadingStore();
+    const useMember = useMemberStore();
     const runtime = useRuntimeConfig();
     const router = useRouter();
     const baseUrl = runtime.public.baseURL;
@@ -128,11 +129,14 @@ export const useUserStore = defineStore('user', () => {
             });
     }
 
-    function getUsers() {
+    function getUsers(search) {
         const token = localStorage.getItem('token');
         isLoading.addLoading('getUsers');
+        if (search == undefined) {
+            search = '';
+        }
         axios
-            .get(baseUrl + `users?page=${isLoading.store.pagination.current_page}`, {
+            .get(baseUrl + `users?page=${isLoading.store.pagination.current_page}?search=${search}`, {
                 headers: {
                     Authorization: 'Bearer ' + token,
                     'APP-TOKEN': 'Xw3IMBRkzMLxRm4',
@@ -140,8 +144,10 @@ export const useUserStore = defineStore('user', () => {
             })
             .then((res) => {
                 store.users = res.data.data;
-                for (let i in isLoading.store.pagination) {
-                    isLoading.store.pagination[i] = res.data.meta[i];
+                if (search) {
+                    for (let i in isLoading.store.pagination) {
+                        isLoading.store.pagination[i] = res.data.meta[i];
+                    }
                 }
                 isLoading.removeLoading('getUsers');
             })
@@ -152,19 +158,23 @@ export const useUserStore = defineStore('user', () => {
             });
     }
 
-    function getUserById() {
+    function getUserById(id) {
         const token = localStorage.getItem('token');
-        const id = router.currentRoute.value.params.id;
+        if (!id) {
+            const id = router.currentRoute.value.params.id;
+        }
         isLoading.addLoading('getUserById');
         axios
-            .get(baseUrl + `users/${id}`, {
+            .get(baseUrl + `user/${id}`, {
                 headers: {
                     Authorization: 'Bearer ' + token,
                     'APP-TOKEN': 'Xw3IMBRkzMLxRm4',
                 },
             })
             .then((res) => {
+                console.log(res, 'user');
                 store.userbyid = res.data.data;
+                useMember.store.user_id = res.data.data;
                 isLoading.removeLoading('getUserById');
             })
             .catch((err) => {

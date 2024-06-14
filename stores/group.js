@@ -11,15 +11,18 @@ export const useGroupStore = defineStore('group', () => {
 
     const store = reactive({
         group: [],
+        trash_group: [],
         group_members: [],
         group_assignments: [],
         group_id: null,
+        course_id: null,
     });
 
     const modal = reactive({
         create: false,
         delete: false,
         edit: false,
+        remove_archive: false,
     });
 
     const create = reactive({
@@ -27,6 +30,7 @@ export const useGroupStore = defineStore('group', () => {
         max_users: '',
         hour: [],
         is_primary: false,
+        course_id: null,
     });
 
     function clearData() {
@@ -38,6 +42,7 @@ export const useGroupStore = defineStore('group', () => {
     }
 
     function createGroup() {
+        create.course_id = store.course_id.id;
         if (isLoading.isLoadingType('createGroup')) {
             return;
         }
@@ -139,6 +144,31 @@ export const useGroupStore = defineStore('group', () => {
             });
     }
 
+    function getTrashGroup() {
+        const token = localStorage.getItem('token');
+        isLoading.addLoading('getGroup');
+        axios
+            .get(baseUrl + `group-archive?page=${isLoading.store.pagination.current_page}&search=${isLoading.store.search}`, {
+                headers: {
+                    Authorization: 'Bearer ' + token,
+                    'APP-TOKEN': 'Xw3IMBRkzMLxRm4',
+                },
+            })
+            .then((res) => {
+                isLoading.store.isLogged = true;
+                store.group = res.data.data;
+                for (let i in isLoading.store.pagination) {
+                    isLoading.store.pagination[i] = res.data.meta[i];
+                }
+                isLoading.removeLoading('getGroup');
+            })
+            .catch((err) => {
+                console.log(err);
+                isLoading.checkAuth(err);
+                isLoading.removeLoading('getGroup');
+            });
+    }
+
     function getGroupMembers() {
         const group_id = router.currentRoute.value.params.group_id;
         const token = localStorage.getItem('token');
@@ -151,12 +181,8 @@ export const useGroupStore = defineStore('group', () => {
                 },
             })
             .then((res) => {
-                console.log(res);
                 isLoading.store.isLogged = true;
                 store.group_members = res.data;
-                // for (let i in isLoading.store.pagination) {
-                //     isLoading.store.pagination[i] = res.data.meta[i];
-                // }
                 isLoading.removeLoading('getGroupMembers');
             })
             .catch((err) => {
@@ -169,7 +195,7 @@ export const useGroupStore = defineStore('group', () => {
     function getGroupAssignments() {
         const token = localStorage.getItem('token');
         isLoading.addLoading('getGroupAssignments');
-        const group_id = router.currentRoute.value.params.group_id
+        const group_id = router.currentRoute.value.params.group_id;
         axios
             .get(baseUrl + `group/${group_id}/assignments?page=${isLoading.store.pagination.current_page}&search=${isLoading.store.search}`, {
                 headers: {
@@ -178,7 +204,6 @@ export const useGroupStore = defineStore('group', () => {
                 },
             })
             .then((res) => {
-                console.log(res);
                 store.group_assignments = res.data.data;
                 for (let i in isLoading.store.pagination) {
                     isLoading.store.pagination[i] = res.data.meta[i];
@@ -190,6 +215,37 @@ export const useGroupStore = defineStore('group', () => {
                 store.group_assignments = [];
                 isLoading.checkAuth(err);
                 isLoading.removeLoading('getGroupAssignments');
+            });
+    }
+
+    function restoreGroup() {
+        if (isLoading.isLoadingType('deleteGroup')) {
+            return;
+        }
+        const token = localStorage.getItem('token');
+        isLoading.addLoading('deleteGroup');
+        axios
+            .post(
+                baseUrl + `groups-restore/${store.group_id}`,
+                {},
+                {
+                    headers: {
+                        Authorization: 'Bearer ' + token,
+                        'APP-TOKEN': 'Xw3IMBRkzMLxRm4',
+                    },
+                }
+            )
+            .then((res) => {
+                isLoading.showMessage('Updated successfully');
+                modal.remove_archive = false;
+                getTrashGroup();
+                isLoading.removeLoading('deleteGroup');
+            })
+            .catch((err) => {
+                isLoading.checkAuth(err);
+                console.log(err);
+                isLoading.showMessage(err.response?.data?.message);
+                isLoading.removeLoading('deleteGroup');
             });
     }
 
@@ -207,7 +263,7 @@ export const useGroupStore = defineStore('group', () => {
                 },
             })
             .then((res) => {
-                isLoading.showMessage('Deleted successfully');
+                isLoading.showMessage('Archived successfully');
                 modal.delete = false;
                 getGroup();
                 isLoading.removeLoading('deleteGroup');
@@ -220,5 +276,45 @@ export const useGroupStore = defineStore('group', () => {
             });
     }
 
-    return { store, modal, create, clearData, getGroup, getGroupAssignments, getGroupMembers, createGroup, deleteGroup };
+    function deleteArchiveGroup() {
+        if (isLoading.isLoadingType('deleteGroup')) {
+            return;
+        }
+        const token = localStorage.getItem('token');
+        isLoading.addLoading('deleteGroup');
+        axios
+            .delete(baseUrl + `groups-delete/${store.group_id}`, {
+                headers: {
+                    Authorization: 'Bearer ' + token,
+                    'APP-TOKEN': 'Xw3IMBRkzMLxRm4',
+                },
+            })
+            .then((res) => {
+                isLoading.showMessage('Deleted successfully');
+                modal.delete = false;
+                getTrashGroup();
+                isLoading.removeLoading('deleteGroup');
+            })
+            .catch((err) => {
+                isLoading.checkAuth(err);
+                console.log(err);
+                isLoading.showMessage(err.response?.data?.message?.errors[0]);
+                isLoading.removeLoading('deleteGroup');
+            });
+    }
+
+    return {
+        store,
+        modal,
+        create,
+        clearData,
+        getGroup,
+        getGroupAssignments,
+        deleteArchiveGroup,
+        getTrashGroup,
+        restoreGroup,
+        getGroupMembers,
+        createGroup,
+        deleteGroup,
+    };
 });

@@ -54,7 +54,6 @@ export const useAttachmentsStore = defineStore('attachments', () => {
         const token = localStorage.getItem('token');
         const formData = new FormData();
         // create.lesson_id = useAssignments.create.lesson_id;
-        console.log(create.lesson_id, 'dklfkdlfk');
         for (let i in create) {
             // if (!create.file) {
             //     return isLoading.showMessage(i + ' is empty', 'warning');

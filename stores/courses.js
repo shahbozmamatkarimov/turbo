@@ -1,17 +1,19 @@
 import { defineStore } from 'pinia';
-import { useLoadingStore, useLessonStore } from '@/stores';
+import { useLoadingStore, useLessonStore, useGroupStore } from '@/stores';
 // import { useNotification } from '@/composables';
 import axios from 'axios';
 
 export const useCoursesStore = defineStore('courses', () => {
     const isLoading = useLoadingStore();
     const useLesson = useLessonStore();
+    const useGroup = useGroupStore();
     const runtime = useRuntimeConfig();
     const router = useRouter();
     const baseUrl = runtime.public.baseURL;
 
     const store = reactive({
         courses: [],
+        coursebyid: [],
         course_data: [],
         course_id: null,
         duration: [],
@@ -52,7 +54,7 @@ export const useCoursesStore = defineStore('courses', () => {
 
     function createCourse() {
         for (let i in create) {
-            if (!create[i]) {
+            if (!create[i] && create[i] != 0) {
                 delete create[i];
             }
         }
@@ -83,11 +85,11 @@ export const useCoursesStore = defineStore('courses', () => {
                 },
             })
             .then((res) => {
-                console.log(res);
                 modal.create = false;
                 isLoading.showMessage('Created successfully', 'success');
                 isLoading.removeLoading('createCourse');
-                getCourses();
+                clearData();
+                router.push("/courses")
             })
             .catch((err) => {
                 isLoading.checkAuth(err);
@@ -116,9 +118,10 @@ export const useCoursesStore = defineStore('courses', () => {
             })
             .then((res) => {
                 modal.create = false;
-                getCourses();
+                clearData();
                 isLoading.showMessage('Updated successfully', 'success');
                 isLoading.removeLoading('updateCourse');
+                router.push("/courses")
             })
             .catch((err) => {
                 isLoading.checkAuth(err);
@@ -139,7 +142,6 @@ export const useCoursesStore = defineStore('courses', () => {
                 },
             })
             .then((res) => {
-                console.log(res);
                 isLoading.store.isLogged = true;
                 store.courses = res.data.data;
                 for (let i in isLoading.store.pagination) {
@@ -154,11 +156,56 @@ export const useCoursesStore = defineStore('courses', () => {
             });
     }
 
+    function searchCourses(search) {
+        const token = localStorage.getItem('token');
+        isLoading.addLoading('getCourses');
+        axios
+            .get(baseUrl + `course?page=1&search=${search}`, {
+                headers: {
+                    Authorization: 'Bearer ' + token,
+                    'APP-TOKEN': 'Xw3IMBRkzMLxRm4',
+                },
+            })
+            .then((res) => {
+                console.log(res);
+                isLoading.store.isLogged = true;
+                store.courses = res.data.data;
+                isLoading.removeLoading('getCourses');
+            })
+            .catch((err) => {
+                console.log(err);
+                isLoading.checkAuth(err);
+                isLoading.removeLoading('getCourses');
+            });
+    }
+
+    function getCourseById(id) {
+        const token = localStorage.getItem('token');
+        isLoading.addLoading('getCourseById');
+        axios
+            .get(baseUrl + `course/${id}`, {
+                headers: {
+                    Authorization: 'Bearer ' + token,
+                    'APP-TOKEN': 'Xw3IMBRkzMLxRm4',
+                },
+            })
+            .then((res) => {
+                console.log(res)
+                useGroup.store.course_id = res.data;
+                isLoading.removeLoading('getCourseById');
+            })
+            .catch((err) => {
+                console.log(err);
+                isLoading.checkAuth(err);
+                isLoading.removeLoading('getCourseById');
+            });
+    }
+
     function getCourseData() {
         useLesson.modal.create = false;
         const token = localStorage.getItem('token');
         isLoading.addLoading('getCourseData');
-        store.course_id = router.currentRoute.value.params.course_id
+        store.course_id = router.currentRoute.value.params.course_id;
         axios
             .get(baseUrl + `course/${store.course_id}/get-all`, {
                 headers: {
@@ -168,7 +215,15 @@ export const useCoursesStore = defineStore('courses', () => {
             })
             .then((res) => {
                 console.log(res);
-                store.course_data = res.data;
+                for (let i in create) {
+                    create[i] = res.data[i];
+                }
+
+                
+                try {
+                    store.duration = res.data.duration.split(':');
+                } catch (_) {}
+                store.course_data = res.data.modules;
                 isLoading.removeLoading('getCourseData');
             })
             .catch((err) => {
@@ -205,5 +260,5 @@ export const useCoursesStore = defineStore('courses', () => {
             });
     }
 
-    return { store, modal, create, clearData, getCourses, getCourseData, createCourse, deleteCourse };
+    return { store, modal, create, clearData, searchCourses, getCourses, getCourseData, createCourse, deleteCourse, getCourseById };
 });

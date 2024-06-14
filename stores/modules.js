@@ -24,10 +24,12 @@ export const useModulesStore = defineStore('modules', () => {
     const create = reactive({
         name: '',
         course_id: '',
+        summary: '',
     });
 
     function clearData() {
         create.name = '';
+        create.summary = '';
         // for (let i in create) {
         //     create[i] = '';
         // }
@@ -130,10 +132,11 @@ export const useModulesStore = defineStore('modules', () => {
             });
     }
 
-    function updatePosition() {
+    function updatePosition(modules) {
         const token = localStorage.getItem('token');
         const data = [];
-        for (let i of store.modules) {
+        for (let i of modules) {
+            console.log(i);
             data.push(i.id);
         }
         isLoading.addLoading('updatePosition');
@@ -149,11 +152,13 @@ export const useModulesStore = defineStore('modules', () => {
                 }
             )
             .then((res) => {
+                // useCourses.getCourseData();
                 isLoading.showMessage('Updated successfully', 'success');
                 isLoading.removeLoading('updatePosition');
             })
             .catch((err) => {
                 isLoading.checkAuth(err);
+                // useCourses.getCourseData();
                 console.log(err);
                 isLoading.showMessage(err.response?.data?.message, 'error');
                 isLoading.removeLoading('updatePosition');
@@ -174,7 +179,6 @@ export const useModulesStore = defineStore('modules', () => {
                 },
             })
             .then((res) => {
-                console.log(res);
                 isLoading.showMessage('Deleted successfully');
                 modal.delete = false;
                 useCourses.modal.delete = false;

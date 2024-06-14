@@ -12,37 +12,6 @@ import IconGroup from '@/components/icon/icon-users.vue';
 export const sidebar = [
     {
         id: 1,
-        name: 'Word',
-        title: "Lug'at",
-        url: '/dictionary',
-        svg: IconMenuNotes,
-        role: false,
-    },
-    {
-        id: 1,
-        title: 'Iboralar',
-        type: 'accordion',
-        child: [
-            {
-                id: 1,
-                name: 'Phrase Category',
-                title: "Bo'limlar",
-                url: '/phrases',
-                svg: IconMenuInvoice,
-                role: false,
-            },
-            {
-                id: 1,
-                name: 'Phrase',
-                title: "Ro'yhat",
-                url: '/phrases/list',
-                svg: IconMenuInvoice,
-                role: false,
-            },
-        ],
-    },
-    {
-        id: 1,
         name: 'Course',
         title: 'Kurslar',
         url: '/courses',
@@ -55,22 +24,6 @@ export const sidebar = [
         title: 'Guruhlar',
         url: '/group',
         svg: IconGroup,
-        role: false,
-    },
-    {
-        id: 1,
-        name: 'Check Assignment',
-        title: 'Topshiriqni tekshirish',
-        url: '/check-assignment',
-        svg: IconGroup,
-        role: true,
-    },
-    {
-        id: 1,
-        name: 'Checklist',
-        title: 'PDF fayllar',
-        url: '/checklist',
-        svg: IconChecklist,
         role: false,
     },
     {
@@ -105,14 +58,14 @@ export const sidebar = [
     //     svg: IconUser,
     //     role: false,
     // },
-    {
-        id: 1,
-        name: 'Plan',
-        title: 'Tarif',
-        url: '/plan',
-        svg: IconPlan,
-        role: false,
-    },
+    // {
+    //     id: 1,
+    //     name: 'Plan',
+    //     title: 'Tarif',
+    //     url: '/plan',
+    //     svg: IconPlan,
+    //     role: false,
+    // },
     // {
     //     id: 1,
     //     name: 'Settings',

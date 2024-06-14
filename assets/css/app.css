@@ -5,7 +5,7 @@
 @import 'tailwind.css';
 
 .el-pagination * {
- background: transparent !important;
+    background: transparent !important;
 }
 
 .el-pagination__total {
@@ -25,4 +25,23 @@
 .excerpt_editor .ql-editor {
     max-height: 100px !important;
     min-height: 100px !important;
+}
+
+.el-collapse-item__header {
+    background: rgb(238 242 255) !important;
+    border-radius: 10px !important;
+    padding: 16px !important;
+    margin-bottom: 10px !important;
+}
+
+.lesson .el-collapse-item__header {
+    background: white !important;
+}
+
+.files .el-collapse-item__header {
+    background: rgb(238 242 255) !important;
+}
+
+.el-collapse {
+    --el-collapse-border-color: transparent !important;
 }

@@ -16,6 +16,7 @@ export const useLessonStore = defineStore('lesson', () => {
         lesson_id: null,
         assignment_step: 0,
         attachment_step: 0,
+        duration: [],
     });
 
     const modal = reactive({
@@ -35,18 +36,20 @@ export const useLessonStore = defineStore('lesson', () => {
     });
 
     function clearData() {
-        // for (let i in create) {
-        //     create[i] = '';
-        // }
         create.assignments = [];
+        create.description = '';
+        create.duration = '';
+        create.title = '';
+        create.video = '';
         create.attachments = [];
         store.assignment_step = 0;
         store.attachment_step = 0;
-        // create.module_id = router.currentRoute.value.params.module_id;
         store.lesson_data = [];
+        store.duration = [];
     }
 
     function createLesson() {
+        create.duration = store.duration.join(':');
         if (!create.attachments) {
             create.attachments = [];
         }
@@ -100,6 +103,7 @@ export const useLessonStore = defineStore('lesson', () => {
                 modal.create = false;
                 isLoading.showMessage('Created successfully', 'success');
                 isLoading.removeLoading('createLesson');
+                clearData();
                 // getLessons();
                 useCourses.getCourseData();
             })
@@ -156,7 +160,9 @@ export const useLessonStore = defineStore('lesson', () => {
             })
             .then((res) => {
                 modal.create = false;
-                getLessons();
+                clearData();
+                // getLessons();
+                useCourses.getCourseData();
                 isLoading.showMessage('Updated successfully', 'success');
                 isLoading.removeLoading('updateLesson');
             })
@@ -168,10 +174,42 @@ export const useLessonStore = defineStore('lesson', () => {
             });
     }
 
+    function updatePosition(lessons) {
+        const token = localStorage.getItem('token');
+        const data = [];
+        for (let i of lessons) {
+            data.push(i.id);
+        }
+        isLoading.addLoading('updatePosition');
+        axios
+            .post(
+                baseUrl + `lesson/position-update`,
+                { lesson_ids: data },
+                {
+                    headers: {
+                        Authorization: 'Bearer ' + token,
+                        'APP-TOKEN': 'Xw3IMBRkzMLxRm4',
+                    },
+                }
+            )
+            .then((res) => {
+                // useCourses.getCourseData();
+                isLoading.showMessage('Updated successfully', 'success');
+                isLoading.removeLoading('updatePosition');
+            })
+            .catch((err) => {
+                isLoading.checkAuth(err);
+                // useCourses.getCourseData();
+                console.log(err);
+                isLoading.showMessage(err.response?.data?.message, 'error');
+                isLoading.removeLoading('updatePosition');
+            });
+    }
+
     function getLessons() {
         const module_id = router.currentRoute.value.params.module_id;
         // const course_id = router.currentRoute.value.params.id;
-        const course_id = router.currentRoute.value.params.course_id
+        const course_id = router.currentRoute.value.params.course_id;
         const token = localStorage.getItem('token');
         isLoading.addLoading('getLessons');
         axios
@@ -245,5 +283,5 @@ export const useLessonStore = defineStore('lesson', () => {
             });
     }
 
-    return { store, modal, create, clearData, getLessons, getLessonById, createLesson, deleteLesson };
+    return { store, modal, create, clearData, getLessons, updatePosition, getLessonById, createLesson, deleteLesson };
 });
