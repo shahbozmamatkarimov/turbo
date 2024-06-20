@@ -78,7 +78,7 @@
                             </button>
                         </form>
                     </div>
-                    <p class="absolute bottom-6 w-full text-center dark:text-white">© {{ new Date().getFullYear() }}.KOLINGO .</p>
+                    <p class="absolute bottom-6 w-full text-center dark:text-white">© {{ new Date().getFullYear() }}.TURBO .</p>
                 </div>
             </div>
         </div>

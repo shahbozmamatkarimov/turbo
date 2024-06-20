@@ -856,7 +856,7 @@
 
     const defaultData = ref({
         id: null,
-        from: 'KOLINGO@mail.com',
+        from: 'TURBO@mail.com',
         to: '',
         cc: '',
         title: '',

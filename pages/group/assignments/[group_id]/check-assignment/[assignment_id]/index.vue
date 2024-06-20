@@ -1,6 +1,6 @@
 <template>
     <div class="panel" v-loading="isLoading.isLoadingType('getCheck')">
-        <div class="mb-5 flex items-center justify-between">
+        <div v-if="isLoading.store.permissions?.includes('View Check Assignment')" class="mb-5 flex items-center justify-between">
             <h5 @click="$router.back()"
                 class="flex cursor-pointer items-center gap-1 text-lg font-semibold dark:text-white-light">
                 <icon-arrow-left class="text-darj rotate-180" />
@@ -56,7 +56,7 @@
                                 <td class="flex items-center gap-3">
                                     {{ data.assignment_answer?.points ? data.assignment_answer?.points : 0 }}
                                     {{ data.points }}
-                                    <client-only v-if="data.status != 'Bajarildi' && data.assignment_answer && !useCheck.store.check?.is_check">
+                                    <client-only v-if="data.status != 'Bajarildi' && data.assignment_answer && !useCheck.store.check?.is_check && isLoading.store.permissions?.includes('Edit Check Assignment')">
                                         <a @click="handleTahrirlash(data)" href="javascript:;" v-tippy:edit>
                                             <icon-edit class="text-success" />
                                         </a>

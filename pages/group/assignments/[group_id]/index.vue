@@ -1,7 +1,7 @@
 <template>
-    <div v-loading="isLoading.isLoadingType('getGroupAssignments')" class="panel">
+    <div v-if="isLoading.store.permissions?.includes('View Assignment')" v-loading="isLoading.isLoadingType('getGroupAssignments')" class="panel">
         <div class="mb-5 flex items-center justify-between">
-            <h5 @click="$router.back()" class="flex items-center cursor-pointer gap-1 text-lg font-semibold dark:text-white-light">
+            <h5 @click="$router.back()" class="flex cursor-pointer items-center gap-1 text-lg font-semibold dark:text-white-light">
                 <icon-arrow-left class="text-darj rotate-180" />
                 Topshiriqlar
             </h5>
@@ -37,7 +37,7 @@
         </div>
         <Pagination />
     </div>
-    
+
     <!-- Modal -->
     <client-only>
         <TransitionRoot appear :show="useGroup.modal.create" as="template">

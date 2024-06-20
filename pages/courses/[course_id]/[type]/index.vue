@@ -3,7 +3,7 @@
 
     <client-only>
 
-        <section>
+        <section v-if="isLoading.store.permissions?.includes('Create Course') || isLoading.store.permissions?.includes('Edit Course')">
 
             <div @close="$router.currentRoute.value.params.type == 'create'">
 
@@ -231,7 +231,7 @@
                                 </div>
                             </form>
                         </div>
-                        <div class="w-full pr-5">
+                        <div v-if="!isLoading.isLoadingType('getCourseById')" class="w-full pr-5">
                             <div v-if="$router.currentRoute.value.params.type == 'edit'" class="flex justify-between items-center w-full pb-2">
                                                 <p>Modullar</p>
                                                 <p class="bg-primary text-white flex gap-1 cursor-pointer py-2 px-4 rounded-md" @click="handleAdd('module')">

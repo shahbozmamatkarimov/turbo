@@ -1,8 +1,8 @@
 export default defineNuxtConfig({
     app: {
         head: {
-            title: 'Sales Admin | KOLINGO',
-            titleTemplate: '%s | KOLINGO',
+            title: 'Sales Admin | TURBO',
+            titleTemplate: '%s | TURBO',
             htmlAttrs: {
                 lang: 'en',
             },
@@ -12,7 +12,7 @@ export default defineNuxtConfig({
                     name: 'viewport',
                     content: 'width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no',
                 },
-                { hid: 'description', name: 'description', content: 'KOLINGO' },
+                { hid: 'description', name: 'description', content: 'TURBO' },
                 { name: 'format-detection', content: 'telephone=no' },
             ],
             link: [

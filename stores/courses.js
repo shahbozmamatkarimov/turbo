@@ -17,12 +17,14 @@ export const useCoursesStore = defineStore('courses', () => {
         course_data: [],
         course_id: null,
         duration: [],
+        is_delete: false,
     });
 
     const modal = reactive({
         create: false,
         delete: false,
         edit: false,
+        remove_archive: false,
     });
 
     const create = reactive({
@@ -89,7 +91,7 @@ export const useCoursesStore = defineStore('courses', () => {
                 isLoading.showMessage('Created successfully', 'success');
                 isLoading.removeLoading('createCourse');
                 clearData();
-                router.push("/courses")
+                router.push('/courses');
             })
             .catch((err) => {
                 isLoading.checkAuth(err);
@@ -121,7 +123,7 @@ export const useCoursesStore = defineStore('courses', () => {
                 clearData();
                 isLoading.showMessage('Updated successfully', 'success');
                 isLoading.removeLoading('updateCourse');
-                router.push("/courses")
+                router.push('/courses');
             })
             .catch((err) => {
                 isLoading.checkAuth(err);
@@ -132,6 +134,9 @@ export const useCoursesStore = defineStore('courses', () => {
     }
 
     function getCourses() {
+        if (store.is_delete) {
+            return getTrashCourses();
+        }
         const token = localStorage.getItem('token');
         isLoading.addLoading('getCourses');
         axios
@@ -190,7 +195,7 @@ export const useCoursesStore = defineStore('courses', () => {
                 },
             })
             .then((res) => {
-                console.log(res)
+                console.log(res);
                 useGroup.store.course_id = res.data;
                 isLoading.removeLoading('getCourseById');
             })
@@ -198,6 +203,31 @@ export const useCoursesStore = defineStore('courses', () => {
                 console.log(err);
                 isLoading.checkAuth(err);
                 isLoading.removeLoading('getCourseById');
+            });
+    }
+
+    function getTrashCourses() {
+        const token = localStorage.getItem('token');
+        isLoading.addLoading('getCourses');
+        axios
+            .get(baseUrl + `course-archive?page=${isLoading.store.pagination.current_page}&search=${isLoading.store.search}`, {
+                headers: {
+                    Authorization: 'Bearer ' + token,
+                    'APP-TOKEN': 'Xw3IMBRkzMLxRm4',
+                },
+            })
+            .then((res) => {
+                isLoading.store.isLogged = true;
+                store.courses = res.data.data;
+                for (let i in isLoading.store.pagination) {
+                    isLoading.store.pagination[i] = res.data.meta[i];
+                }
+                isLoading.removeLoading('getCourses');
+            })
+            .catch((err) => {
+                console.log(err);
+                isLoading.checkAuth(err);
+                isLoading.removeLoading('getCourses');
             });
     }
 
@@ -219,7 +249,6 @@ export const useCoursesStore = defineStore('courses', () => {
                     create[i] = res.data[i];
                 }
 
-                
                 try {
                     store.duration = res.data.duration.split(':');
                 } catch (_) {}
@@ -230,6 +259,37 @@ export const useCoursesStore = defineStore('courses', () => {
                 console.log(err);
                 isLoading.checkAuth(err);
                 isLoading.removeLoading('getCourseData');
+            });
+    }
+
+    function restoreCourse() {
+        if (isLoading.isLoadingType('deleteCourse')) {
+            return;
+        }
+        const token = localStorage.getItem('token');
+        isLoading.addLoading('deleteCourse');
+        axios
+            .post(
+                baseUrl + `course-restore/${store.course_id}`,
+                {},
+                {
+                    headers: {
+                        Authorization: 'Bearer ' + token,
+                        'APP-TOKEN': 'Xw3IMBRkzMLxRm4',
+                    },
+                }
+            )
+            .then((res) => {
+                isLoading.showMessage('Updated successfully');
+                modal.remove_archive = false;
+                getTrashCourses();
+                isLoading.removeLoading('deleteCourse');
+            })
+            .catch((err) => {
+                isLoading.checkAuth(err);
+                console.log(err);
+                isLoading.showMessage(err.response?.data?.message, 'error');
+                isLoading.removeLoading('deleteCourse');
             });
     }
 
@@ -260,5 +320,46 @@ export const useCoursesStore = defineStore('courses', () => {
             });
     }
 
-    return { store, modal, create, clearData, searchCourses, getCourses, getCourseData, createCourse, deleteCourse, getCourseById };
+    function deleteArchiveCourse() {
+        if (isLoading.isLoadingType('deleteCourse')) {
+            return;
+        }
+        const token = localStorage.getItem('token');
+        isLoading.addLoading('deleteCourse');
+        axios
+            .delete(baseUrl + `course-deleted/${store.course_id}`, {
+                headers: {
+                    Authorization: 'Bearer ' + token,
+                    'APP-TOKEN': 'Xw3IMBRkzMLxRm4',
+                },
+            })
+            .then((res) => {
+                isLoading.showMessage('Deleted successfully');
+                modal.delete = false;
+                getTrashCourses();
+                isLoading.removeLoading('deleteCourse');
+            })
+            .catch((err) => {
+                isLoading.checkAuth(err);
+                console.log(err);
+                isLoading.showMessage(err.response?.data?.message?.errors[0]);
+                isLoading.removeLoading('deleteCourse');
+            });
+    }
+
+    return {
+        store,
+        modal,
+        create,
+        clearData,
+        searchCourses,
+        getCourses,
+        getTrashCourses,
+        getCourseData,
+        createCourse,
+        deleteCourse,
+        restoreCourse,
+        deleteArchiveCourse,
+        getCourseById,
+    };
 });

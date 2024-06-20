@@ -3,26 +3,25 @@
         <div class="mb-5 flex items-center justify-between">
             <h5 class="text-lg font-semibold dark:text-white-light">Guruhlar</h5>
             <div class="flex items-center justify-center">
-                <!-- <button v-if="isLoading.store.permissions?.includes('Create Group')" type="button" class="btn btn-info" @click="useGroup.modal.create = true">+ Qo'shish</button> -->
-                <button type="button" class="btn btn-info" @click="useGroup.modal.create = true">+ Qo'shish</button>
+                <button v-if="isLoading.store.permissions?.includes('Create Group')" type="button" class="btn btn-info" @click="useGroup.modal.create = true">+ Qo'shish</button>
                 <div class="flex items-center gap-2">
                 </div>
                 <div class="flex rounded-md bg-[#027DFC1A] duration-1000 ml-4">
-                    <button @click="store.is_delete = false" :class="store.is_delete ? '' : 'bg-[#027DFC] text-white'"
+                    <button @click="useGroup.store.is_delete = false" :class="useGroup.store.is_delete ? '' : 'bg-[#027DFC] text-white'"
                         class="flex justify-center items-center h-9 w-9 rounded-md duration-700">
                         <icon-box />
                     </button>
-                    <button @click="store.is_delete = true" :class="!store.is_delete ? '' : 'bg-[#027DFC] text-white'"
+                    <button @click="useGroup.store.is_delete = true" :class="!useGroup.store.is_delete ? '' : 'bg-[#027DFC] text-white'"
                         class="flex justify-center items-center h-9 w-9 rounded-md duration-700">
-                        <!-- <img class="mx-auto w-6" v-show="!store.is_delete" src="@/assets/svg/grid.svg" alt="" /> -->
-                        <!-- <img class="mx-auto w-6" v-show="store.is_delete" src="@/assets/svg/grid_white.svg" alt="" /> -->
-                        <icon-users />
+                        <!-- <img class="mx-auto w-6" v-show="!useGroup.store.is_delete" src="@/assets/svg/grid.svg" alt="" /> -->
+                        <!-- <img class="mx-auto w-6" v-show="useGroup.store.is_delete" src="@/assets/svg/grid_white.svg" alt="" /> -->
+                        <icon-refresh />
                     </button>
                 </div>
             </div>
         </div>
         <div class="mb-5" v-loading="isLoading.isLoadingType('getGroup')">
-            <div class="table-responsive" :class="store.is_delete? 'bg-red-50' : ''">
+            <div class="table-responsive" :class="useGroup.store.is_delete? 'bg-red-50' : ''">
                 <table>
                     <thead>
                         <tr>
@@ -36,7 +35,7 @@
                     </thead>
                     <tbody>
                         <template v-for="(data, index) in useGroup.store.group" :key="data.id">
-                            <tr>
+                            <tr class="cursor-pointer">
                                 <td @click="router.push(`/group/members/${data.id}`)" class="whitespace-nowrap">#{{
                     data.id }}</td>
                                 <td @click="router.push(`/group/members/${data.id}`)" class="">{{ data.name }}</td>
@@ -48,21 +47,21 @@
                     : 'Peshin' }}</td>
                                 <td class="text-center">
                                     <ul class="flex items-center justify-center gap-3">
-                                        <li v-if="store.is_delete" @click="handleRemoveArchive(data.id)">
+                                        <li v-if="useGroup.store.is_delete" @click="handleRemoveArchive(data.id) && isLoading.store.permissions?.includes('Edit Group')">
                                             <client-only>
                                                 <a href="javascript:;" v-tippy:edit>
                                                     <icon-refresh class="text-success" />
                                                 </a>
                                             </client-only>
                                         </li>
-                                        <li v-else @click="handleTahrirlash(data)">
+                                        <li v-else-if="isLoading.store.permissions?.includes('Edit Group')" @click="handleTahrirlash(data)">
                                             <client-only>
                                                 <a href="javascript:;" v-tippy:edit>
                                                     <icon-edit class="text-success" />
                                                 </a>
                                             </client-only>
                                         </li>
-                                        <li @click="handleDelete(data.id)">
+                                        <li v-if="isLoading.store.permissions?.includes('Delete Group')" @click="handleDelete(data.id)">
                                             <client-only>
                                                 <a href="javascript:;" v-tippy:delete>
                                                     <icon-trash-lines class="text-danger" />
@@ -252,7 +251,7 @@
                                 </button>
                                 <div
                                     class="bg-[#fbfbfb] py-3 text-lg font-medium dark:bg-[#121c2c] ltr:pl-5 ltr:pr-[50px] rtl:pl-[50px] rtl:pr-5">
-                                    {{ store.is_delete ? "Guruhni arxivdan o'chirish" : "Guruhni o'chirish"}}
+                                    {{ useGroup.store.is_delete ? "Guruhni arxivdan o'chirish" : "Guruhni o'chirish"}}
                                 </div>
                                 <div class="p-5 text-center">
                                     <div
@@ -264,7 +263,7 @@
                                     <div class="mt-8 flex items-center justify-center">
                                         <button type="button" class="btn btn-outline-danger"
                                             @click="useGroup.modal.delete = false">Bekor qilish</button>
-                                        <button v-if="!store.is_delete" type="button" class="btn btn-primary ltr:ml-4 rtl:mr-4"
+                                        <button v-if="!useGroup.store.is_delete" type="button" class="btn btn-primary ltr:ml-4 rtl:mr-4"
                                             @click="useGroup.deleteGroup">O'chirish</button>
                                             <button v-else type="button" class="btn btn-primary ltr:ml-4 rtl:mr-4"
                                             @click="useGroup.deleteArchiveGroup">Arxivdan o'chirish</button>
@@ -294,7 +293,7 @@ const store = reactive({
 })
 
 const minutes_list = [];
-for (let i = 1; i <= 60; i++) {
+for (let i = 0; i < 60; i++) {
     minutes_list.push(i < 10 ? '0' + i : i);
 }
 
@@ -353,8 +352,8 @@ watch(
     }
 );
 
-watch(() => store.is_delete, () => {
-    if (store.is_delete) {
+watch(() => useGroup.store.is_delete, () => {
+    if (useGroup.store.is_delete) {
         useGroup.getTrashGroup();
     } else {
         useGroup.getGroup();

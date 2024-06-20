@@ -16,6 +16,7 @@ export const useGroupStore = defineStore('group', () => {
         group_assignments: [],
         group_id: null,
         course_id: null,
+        is_delete: false,
     });
 
     const modal = reactive({
@@ -120,6 +121,9 @@ export const useGroupStore = defineStore('group', () => {
     }
 
     function getGroup() {
+        if (store.is_delete) {
+            return getTrashGroup();
+        }
         const token = localStorage.getItem('token');
         isLoading.addLoading('getGroup');
         axios
